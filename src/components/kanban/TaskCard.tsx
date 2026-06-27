@@ -74,6 +74,24 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         >
           Edit
         </button>
+
+        <label className="move-label">
+          <span className="sr-only">Move task</span>
+          <select
+            className="move-select"
+            value={task.column}
+            onChange={(e) =>
+              dispatch({
+                type: 'MOVE_TASK',
+                payload: { id: task.id, column: e.target.value as Task['column'] },
+              })
+            }
+          >
+            <option value="todo">To Do</option>
+            <option value="in-progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </label>
       </footer>
     </article>
   );

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTaskStore } from '../../store/taskStoreContext';
 import type { Task, TaskPriority } from '../../store/taskTypes';
 import { useFocusTrap } from '../../utils/useFocusTrap';
+import { useToast } from '../common/ToastProvider';
 
 const createEmptyTaskDraft = (): Omit<Task, 'id' | 'createdAt' | 'column'> => ({
   title: '',
@@ -15,6 +16,7 @@ const generateId = () => crypto.randomUUID?.() ?? String(Date.now());
 
 export const TaskModal: React.FC = () => {
   const { state, dispatch } = useTaskStore();
+    const { showToast } = useToast();
   const { isModalOpen, editingTaskId } = state.ui;
 
   const existingTask = useMemo(
@@ -86,9 +88,10 @@ export const TaskModal: React.FC = () => {
     }));
   };
 
-  const handleDelete = () => {
+      const handleDelete = () => {
     if (!isEditMode || !existingTask) return;
     dispatch({ type: 'DELETE_TASK', payload: { id: existingTask.id } });
+    showToast(`Task "${existingTask.title}" deleted`, 'success');
     closeModal();
   };
 
@@ -110,6 +113,7 @@ export const TaskModal: React.FC = () => {
         dueDate: draft.dueDate,
       };
       dispatch({ type: 'UPDATE_TASK', payload: updated });
+      showToast(`Task "${updated.title}" updated`, 'success');
     } else {
       const now = new Date().toISOString();
       const newTask: Task = {
@@ -123,6 +127,7 @@ export const TaskModal: React.FC = () => {
         createdAt: now,
       };
       dispatch({ type: 'CREATE_TASK', payload: newTask });
+      showToast(`Task "${newTask.title}" created`, 'success');
     }
 
     closeModal();

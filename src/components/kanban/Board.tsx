@@ -1,11 +1,9 @@
 import React from 'react';
 import { useTaskStore } from '../../store/taskStoreContext';
-import {
-  selectDerivedFilteredTasks,
-  getTasksForColumn,
-} from '../../store/taskSelectors';
+import {selectDerivedFilteredTasks,getTasksForColumn,} from '../../store/taskSelectors';
 import { TaskCard } from './TaskCard';
 import type { TaskColumn } from '../../store/taskTypes';
+import { useToast } from '../common/ToastProvider';
 
 export const Board: React.FC = () => {
   const { state, dispatch } = useTaskStore();
@@ -14,6 +12,7 @@ export const Board: React.FC = () => {
   const todoTasks = getTasksForColumn(filtered, 'todo');
   const inProgressTasks = getTasksForColumn(filtered, 'in-progress');
   const doneTasks = getTasksForColumn(filtered, 'done');
+  const { showToast } = useToast();
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault(); // allow drop
@@ -42,6 +41,16 @@ export const Board: React.FC = () => {
     if (!task || task.column === targetColumn) return;
 
     dispatch({ type: 'MOVE_TASK', payload: { id: taskId, column: targetColumn } });
+    showToast(
+      `Task "${task.title}" moved to ${
+        targetColumn === 'todo'
+          ? 'To Do'
+          : targetColumn === 'in-progress'
+          ? 'In Progress'
+          : 'Done'
+      }`,
+      'info'
+    );
   };
 
   const handleDropCleanup = (e: React.DragEvent<HTMLDivElement>) => {
